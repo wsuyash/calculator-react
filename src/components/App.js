@@ -3,118 +3,86 @@ import Buttons from './Buttons';
 import { useState } from 'react';
 
 const App = () => {
-	const [reset, setReset] = useState(false);
-	const [result, setResult] = useState("");
+	const [currentOperand, setCurrentOperand] = useState(() => "");
+	const [previousOperand, setPreviousOperand] = useState(() => "");
+	const [operator, setOperator] = useState("");
+	const [isEvaluated, setIsEvaluated] = useState(false);
 
-	const handleInput = (e) => {
-		console.log(result);
-		if (reset && isNaN(result.charAt(result.length - 1))) {
-			setResult(result + e.target.innerText);
-		} else if (reset) {
-			setResult(e.target.innerText);
+	const handleNumInp = (e) => {
+		if (isEvaluated) {
+			setCurrentOperand(() => e.target.innerText);
+			setIsEvaluated(false);
 		} else {
-			if (result[0] === '0' && !isNaN(result.charAt(result.length - 1))) {
-				setResult(result.substring(1) + e.target.innerText);
-				return;
-			}
-			setResult(result + e.target.innerText);
+			setCurrentOperand((prevState) => (prevState + e.target.innerText));
 		}
 
-		setReset(false);
 	}
 
-	const clear = () => {
-		setResult(result.slice(0, -1));
-	}
-
-	const plusMinus = () => {
-		if (result === "" || result === "0") {
+	const handleOperatorInp = (e) => {
+		if (currentOperand === "" && previousOperand === "") {
 			return;
 		}
 
-		if (result[0] === "-") {
-			setResult(result.slice(1));
-		} else {
-			setResult("-" + result);
+		if (currentOperand === "" && previousOperand !== "") {
+			setOperator(e.target.innerText);
+		}
+
+		if (previousOperand === "" && !isNaN(currentOperand)) {
+			setPreviousOperand(() => currentOperand);
+			setOperator(() => e.target.innerText);
+			setCurrentOperand(() => "");
+		}
+
+		if (previousOperand !== "" && currentOperand !== "") {
+			let result = calculate(previousOperand, currentOperand, operator);
+			setPreviousOperand(() => result);
+			setOperator(() => e.target.innerText);
+			setCurrentOperand(() => "");
 		}
 
 	}
 
-	const percentage = () => {
-		if (result === "" || isNaN(result.charAt(result.length - 1))) {
-			return;
+	const calculate = (previousOperand, currentOperand, operator) => {
+		let op1 = parseFloat(previousOperand);
+		let op2 = parseFloat(currentOperand);
+		switch (operator) {
+			case "+":
+				return op1 + op2;
+			case "-":
+				return op1 - op2;
+			case "*":
+				return op1 * op2;
+			case "/":
+				return op1 / op2;
+			default:
+				return 0;
 		}
-		setResult(eval(result / 100).toString());
+		// return eval(`${previousOperand} ${operator} ${currentOperand}`);
 	}
 
-	const divide = () => {
-		if (result === "" || isNaN(result.charAt(result.length - 1))) {
-			return;
-		}
-		setResult(result + "/");
-
-	}
-
-	const multiply = () => {
-		if (result === "" || isNaN(result.charAt(result.length - 1))) {
-			return;
-		}
-		setResult(result + "*");
-
-	}
-
-	const subtract = () => {
-		if (result === "" || isNaN(result.charAt(result.length - 1))) {
-			return;
-		}
-		setResult(result + "-");
-
-	}
-
-	const add = () => {
-		if (result === "" || isNaN(result.charAt(result.length - 1))) {
-			return;
-		}
-		setResult(result + "+");
-
-	}
-
-	const dot = () => {
-		if (result === "" || isNaN(result.charAt(result.length - 1))) {
+	const evaluate = () => {
+		if (previousOperand === "" || operator === "" || currentOperand === "") {
 			return;
 		}
 
-		setResult(result + ".");
-	}
-
-	const equals = () => {
-		if (result === "" || isNaN(result.charAt(result.length - 1)) || result.includes("/") === '-1' || result.includes("*") === '-1' || result.includes("-") === '-1' || result.includes("+") === '-1') {
-			return;
-		}
-		try {
-			setResult(eval(result).toString());
-			setReset(true);
-		} catch (error) {
-			setResult(Error);	
-			setReset(true);
-		}
+		let result = calculate(previousOperand, currentOperand, operator);
+		setCurrentOperand(() => result);
+		setPreviousOperand(() => "");
+		setOperator(() => "");
+		setIsEvaluated(() => true);
 	}
 
   return (
 		<div className="App w-screen h-screen md:w-[50%] lg:w-[30%] md:h-min flex flex-col justify-center items-center m-auto p-2 md:p-0 absolute top-0 bottom-0 left-0 right-0 md:border-2 md:border-gray-800 rounded">
-			<h1 className="w-[100%] mb-8 py-2 text-2xl text-white text-center font-bold bg-gray-800">CALCULATOR</h1>
-			<Display result={result} />
+			<Display
+				currentOperand={currentOperand}
+				previousOperand={previousOperand}
+				operator={operator}
+			/>
 			<Buttons
-				handleInput={handleInput}
-				clear={clear}
-				plusMinus={plusMinus}
-				percentage={percentage}
-				divide={divide}
-				multiply={multiply}
-				subtract={subtract}
-				add={add}
-				dot={dot}
-				equals={equals}
+				handleNumInp={handleNumInp}
+				handleOperatorInp={handleOperatorInp}
+				evaluate={evaluate}
 			/>
 		</div>
   );
