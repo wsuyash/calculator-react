@@ -7,7 +7,7 @@ A calculator app for basic mathematical operations.
 
 # Run This Project Locally
 ## Prerequisites
-### Install node and npm.
+Install node and npm.
 
 ## Setup
 ### 1. Clone this repository and change into the directory:
