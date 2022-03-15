@@ -42,22 +42,96 @@ const App = () => {
 
 	}
 
+	const handleSpecialInp = (e) => {
+		const symbol = e.target.innerText;
+
+		switch(symbol) {
+			case "C" :
+				if (currentOperand === "" && previousOperand !== "") {
+					setCurrentOperand(() => previousOperand);
+					setOperator(() => "");
+					setPreviousOperand(() => "");
+					return;
+				}
+
+				if (currentOperand === "Infinity" || isNaN(currentOperand)) {
+					setCurrentOperand(() => "");
+					return;
+				}
+
+				if (currentOperand[0] === '-' &&  currentOperand.substring(1) === "Infinity") {
+					setCurrentOperand(() => "");
+					return;
+				}
+				
+				if (currentOperand[0] === '-' &&  currentOperand.length === 2) {
+					setCurrentOperand(() => "");
+					return;
+				}
+
+				setCurrentOperand((prevState) => prevState.slice(0, -1));
+				setIsEvaluated(false);
+				
+				return;
+			case "+/-" :
+				if (currentOperand === "" && previousOperand === "") {
+					return;
+				}
+
+				if (currentOperand === "" && previousOperand !== "") {
+					setPreviousOperand((prevState) => prevState.charAt(0) === '-' ? prevState.substring(1) : "-" + prevState);
+					return;
+				}
+
+				setCurrentOperand((prevState) => prevState.charAt(0) === '-' ? prevState.substring(1) : "-" + prevState);
+
+				return;
+			case "%" :
+				if (currentOperand === "" && previousOperand === "") {
+					return;
+				}
+
+				if (currentOperand === "" && previousOperand !== "") {
+					setPreviousOperand((prevState) => isNaN(prevState) ? "" : eval(prevState / 100).toString());
+					return;
+				}
+
+				setCurrentOperand((prevState) => isNaN(prevState) ? "" : eval(prevState / 100).toString());
+
+				return;
+			case "." :
+				if (currentOperand === "") {
+					return;
+				}
+
+				if (!currentOperand.includes(".")) {
+					setCurrentOperand((prevState) => prevState + ".");
+					return;
+				}
+
+				return;
+			default :
+				return;
+		}
+
+
+	}
+
 	const calculate = (previousOperand, currentOperand, operator) => {
 		let op1 = parseFloat(previousOperand);
 		let op2 = parseFloat(currentOperand);
 		switch (operator) {
 			case "+":
-				return op1 + op2;
+				return (op1 + op2).toString();
 			case "-":
-				return op1 - op2;
+				return (op1 - op2).toString();
 			case "*":
-				return op1 * op2;
+				return (op1 * op2).toString();
 			case "/":
-				return op1 / op2;
+				return (op1 / op2).toString();
 			default:
-				return 0;
+				return "0";
 		}
-		// return eval(`${previousOperand} ${operator} ${currentOperand}`);
 	}
 
 	const evaluate = () => {
@@ -82,6 +156,7 @@ const App = () => {
 			<Buttons
 				handleNumInp={handleNumInp}
 				handleOperatorInp={handleOperatorInp}
+				handleSpecialInp={handleSpecialInp}
 				evaluate={evaluate}
 			/>
 		</div>

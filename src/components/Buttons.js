@@ -3,14 +3,14 @@ import OperatorButton from "./OperatorButton";
 import SpecialButton from "./SpecialButton";
 
 const Buttons = (props) => {
-	const { handleNumInp, handleOperatorInp, evaluate } = props;
+	const { handleNumInp, handleOperatorInp, handleSpecialInp, evaluate } = props;
 
 	return (
 		<div className="Buttons w-[100%]">
 			<div className="row flex border-b-2 border-gray-800">
-				<SpecialButton symbol="C" />
-				<SpecialButton symbol="+/-" />
-				<SpecialButton symbol="%" />
+				<SpecialButton symbol="C" handleSpecialInp={handleSpecialInp} />
+				<SpecialButton symbol="+/-" handleSpecialInp={handleSpecialInp} />
+				<SpecialButton symbol="%" handleSpecialInp={handleSpecialInp} />
 				<OperatorButton operator="/" handleOperatorInp={handleOperatorInp} />
 			</div>
 
@@ -37,7 +37,7 @@ const Buttons = (props) => {
 
 			<div className="row flex border-gray-800">
 				<DigitButton digit="0" handleNumInp={handleNumInp} />
-				<button className="w-[25%] h-[60px] text-center text-2xl bg-slate-300 border-r-2 border-gray-800">.</button>
+				<SpecialButton symbol="." handleSpecialInp={handleSpecialInp} />
 				<OperatorButton operator="=" evaluate={evaluate} />
 			</div>
 		</div>
