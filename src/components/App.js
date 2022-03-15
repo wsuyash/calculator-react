@@ -1,23 +1,28 @@
+// Imports
 import Display from './Display';
 import Buttons from './Buttons';
 import { useState } from 'react';
 
 const App = () => {
+	// States
 	const [currentOperand, setCurrentOperand] = useState(() => "");
 	const [previousOperand, setPreviousOperand] = useState(() => "");
 	const [operator, setOperator] = useState("");
 	const [isEvaluated, setIsEvaluated] = useState(false);
 
+	// Handle number buttons click
 	const handleNumInp = (e) => {
 		if (isEvaluated) {
 			setCurrentOperand(() => e.target.innerText);
-			setIsEvaluated(false);
-		} else {
-			setCurrentOperand((prevState) => (prevState + e.target.innerText));
+			setIsEvaluated(() => false);
+			return;
 		}
-
+			
+		setCurrentOperand((prevState) => (prevState + e.target.innerText));
+		return;
 	}
 
+	// Handle operator buttons click
 	const handleOperatorInp = (e) => {
 		if (currentOperand === "" && previousOperand === "") {
 			return;
@@ -25,12 +30,14 @@ const App = () => {
 
 		if (currentOperand === "" && previousOperand !== "") {
 			setOperator(e.target.innerText);
+			return;
 		}
 
 		if (previousOperand === "" && !isNaN(currentOperand)) {
 			setPreviousOperand(() => currentOperand);
 			setOperator(() => e.target.innerText);
 			setCurrentOperand(() => "");
+			return;
 		}
 
 		if (previousOperand !== "" && currentOperand !== "") {
@@ -38,11 +45,14 @@ const App = () => {
 			setPreviousOperand(() => result);
 			setOperator(() => e.target.innerText);
 			setCurrentOperand(() => "");
+			return;
 		}
 
 	}
 
+	// Handle special button clicks like "C", ".", "+/-", "%".
 	const handleSpecialInp = (e) => {
+		// Get the symbol of the button clicked
 		const symbol = e.target.innerText;
 
 		switch(symbol) {
@@ -71,8 +81,8 @@ const App = () => {
 
 				setCurrentOperand((prevState) => prevState.slice(0, -1));
 				setIsEvaluated(false);
-				
 				return;
+				
 			case "+/-" :
 				if (currentOperand === "" && previousOperand === "") {
 					return;
@@ -84,8 +94,8 @@ const App = () => {
 				}
 
 				setCurrentOperand((prevState) => prevState.charAt(0) === '-' ? prevState.substring(1) : "-" + prevState);
-
 				return;
+
 			case "%" :
 				if (currentOperand === "" && previousOperand === "") {
 					return;
@@ -97,8 +107,15 @@ const App = () => {
 				}
 
 				setCurrentOperand((prevState) => isNaN(prevState) ? "" : eval(prevState / 100).toString());
-
 				return;
+
+			case "AC" : 
+				setPreviousOperand(() => "");
+				setCurrentOperand(() => "");
+				setOperator(() => "");
+				setIsEvaluated(() => false);
+				return;
+
 			case "." :
 				if (currentOperand === "") {
 					return;
@@ -106,34 +123,37 @@ const App = () => {
 
 				if (!currentOperand.includes(".")) {
 					setCurrentOperand((prevState) => prevState + ".");
+					if (isEvaluated) {
+						setIsEvaluated(() => false);
+					}
 					return;
 				}
-
 				return;
+
 			default :
 				return;
 		}
-
-
 	}
 
+	// Helper function to calculate the result
 	const calculate = (previousOperand, currentOperand, operator) => {
 		let op1 = parseFloat(previousOperand);
 		let op2 = parseFloat(currentOperand);
 		switch (operator) {
 			case "+":
 				return (op1 + op2).toString();
-			case "-":
+			case "−":
 				return (op1 - op2).toString();
-			case "*":
+			case "×":
 				return (op1 * op2).toString();
-			case "/":
+			case "÷":
 				return (op1 / op2).toString();
 			default:
 				return "0";
 		}
 	}
 
+	// Handle equals button click
 	const evaluate = () => {
 		if (previousOperand === "" || operator === "" || currentOperand === "") {
 			return;
@@ -144,10 +164,11 @@ const App = () => {
 		setPreviousOperand(() => "");
 		setOperator(() => "");
 		setIsEvaluated(() => true);
+		return;
 	}
 
   return (
-		<div className="App w-screen h-screen md:w-[50%] lg:w-[30%] md:h-min flex flex-col justify-center items-center m-auto p-2 md:p-0 absolute top-0 bottom-0 left-0 right-0 md:border-2 md:border-gray-800 rounded">
+		<div className="App w-screen h-screen md:w-[50%] lg:w-[30%] md:h-min flex flex-col justify-center items-center m-auto p-2 md:p-0 absolute top-0 bottom-0 left-0 right-0">
 			<Display
 				currentOperand={currentOperand}
 				previousOperand={previousOperand}
