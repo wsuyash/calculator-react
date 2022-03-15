@@ -1,6 +1,8 @@
 # Calculator
 A calculator app for basic mathematical operations.
 
+### This project is hosted at: https://wsuyash.github.io/calculator-react/
+
 # Tech Stack
 1. React
 2. Tailwind CSS
